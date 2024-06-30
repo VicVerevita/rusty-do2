@@ -12,16 +12,14 @@ diesel::table! {
 }
 
 diesel::table! {
-    users (pk) {
-        pk -> Int4,
-        user_id -> Nullable<Uuid>,
+    users (user_id) {
+        user_id -> Uuid,
         username -> Varchar,
         email -> Varchar,
         password_hash -> Varchar,
     }
 }
 
-diesel::allow_tables_to_appear_in_same_query!(
-    tasks,
-    users,
-);
+diesel::joinable!(tasks -> users (user_id));
+
+diesel::allow_tables_to_appear_in_same_query!(tasks, users,);

@@ -4,3 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+bcrypt = "0.10"
+chrono = "0.4"
+diesel = { version = "1.4.4", features = ["postgres", "uuidv07"] }
+ratatui = "0.27.0"  # or the latest version
+dotenv = "0.15.0"
+uuid = { version = "0.8.2", features = ["v4"] }
