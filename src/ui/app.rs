@@ -1,8 +1,8 @@
-use crate::config::AppState;
+use crate::{config::AppState, db::models::Task};
 
 pub enum CurrentScreen {
-    Register,
-    Login,
+    Registering,
+    LoggingIn,
     Main,
     Editing,
     Exiting,
@@ -12,6 +12,17 @@ pub enum CurrentlyEditing {
     Title,
     Description,
     Status,
+}
+
+pub enum CurrentlyRegistering {
+    Email,
+    Username,
+    Password,
+}
+
+pub enum CurrentlyLoggingIn {
+    Username,
+    Password,
 }
 
 pub struct TaskUi {
@@ -26,7 +37,9 @@ pub struct App {
     pub finished_status: bool,
     pub tasks: Vec<Task>,
     pub current_screen: CurrentScreen,
-    pub currently_editing: CurrentlyEditing,
+    pub currently_editing: Option<CurrentlyEditing>,
+    pub currently_registering: Option<CurrentlyRegistering>,
+    pub currently_logging_in: Option<CurrentlyLoggingIn>,
 }
 
 impl App {
@@ -38,11 +51,9 @@ impl App {
             tasks: Vec::new(),
             current_screen: CurrentScreen::Main,
             currently_editing: None,
+            currently_registering: None,
+            currently_logging_in: None,
         }
-    }
-
-    pub fn login(&mut self) {
-        if AppState::
     }
 
     pub fn toggle_editing(&mut self) {
