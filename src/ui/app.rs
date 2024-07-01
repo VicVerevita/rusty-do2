@@ -1,3 +1,5 @@
+use crate::config::AppState;
+
 pub enum CurrentScreen {
     Register,
     Login,
@@ -36,6 +38,26 @@ impl App {
             tasks: Vec::new(),
             current_screen: CurrentScreen::Main,
             currently_editing: None,
+        }
+    }
+
+    pub fn login(&mut self) {
+        if AppState::
+    }
+
+    pub fn toggle_editing(&mut self) {
+        if let Some(edit_mode) = &self.currently_editing {
+            match edit_mode {
+                CurrentlyEditing::Title => {
+                    self.currently_editing = Some(CurrentlyEditing::Description)
+                }
+                CurrentlyEditing::Description => {
+                    self.currently_editing = Some(CurrentlyEditing::Status)
+                }
+                CurrentlyEditing::Status => todo!(),
+            };
+        } else {
+            self.currently_editing = Some(CurrentlyEditing::Title);
         }
     }
 }
