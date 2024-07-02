@@ -22,12 +22,7 @@ pub mod db;
 pub mod ui;
 
 fn main() {
-    let _conn = establish_connection();
-
-    let mut _application_state = config::AppState {
-        is_authenticated: false,
-        user_id: None,
-    };
+    let conn = establish_connection();
 
     enable_raw_mode().expect("Could not initiate terminal instance!");
     let mut stderr = io::stderr();
@@ -37,7 +32,7 @@ fn main() {
     let backend = CrosstermBackend::new(stderr);
     let mut terminal = Terminal::new(backend).expect("Failed starting terminal instance!");
 
-    let mut app = App::new();
+    let mut app = App::new(conn);
     let res = run_app(&mut terminal, &mut app);
 
     disable_raw_mode().expect("Failed closing terminal instance!");

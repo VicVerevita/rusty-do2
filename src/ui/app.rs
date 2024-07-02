@@ -1,4 +1,9 @@
-use crate::{config::AppState, db::models::Task};
+use diesel::PgConnection;
+
+use crate::{
+    commands::{self, create_task},
+    db::models::{NewTask, Task, User},
+};
 
 pub enum CurrentScreen {
     Registering,
@@ -32,6 +37,8 @@ pub struct TaskUi {
 }
 
 pub struct App {
+    user: Option<User>,
+    conn: PgConnection,
     pub title_input: String,
     pub description_input: String,
     pub finished_status: bool,
@@ -43,8 +50,10 @@ pub struct App {
 }
 
 impl App {
-    pub fn new() -> App {
+    pub fn new(conn: PgConnection) -> App {
         App {
+            user: None,
+            conn,
             title_input: String::new(),
             description_input: String::new(),
             finished_status: false,
@@ -69,6 +78,53 @@ impl App {
             };
         } else {
             self.currently_editing = Some(CurrentlyEditing::Title);
+        }
+    }
+
+    pub fn toggle_registering(&mut self) {
+        if let Some(register_mode) = &self.currently_registering {
+            match register_mode {
+                CurrentlyRegistering::Email => {
+                    self.currently_registering = Some(CurrentlyRegistering::Username)
+                }
+                CurrentlyRegistering::Username => {
+                    self.currently_registering = Some(CurrentlyRegistering::Password)
+                }
+                CurrentlyRegistering::Password => {
+                    todo!()
+                }
+            }
+        }
+    }
+
+    pub fn toggle_logging_in(&mut self) {
+        if let Some(login_mode) = &self.currently_logging_in {
+            match login_mode {
+                CurrentlyLoggingIn::Username => {
+                    self.currently_registering = Some(CurrentlyRegistering::Password)
+                }
+                CurrentlyLoggingIn::Password => {
+                    todo!()
+                }
+            }
+        }
+    }
+
+    pub fn save_task(&mut self) {
+        if let Some(current_user) = &self.user {
+            if !self.title_input.is_empty() {
+                create_task(
+                    &self.conn,
+                    &self.title_input,
+                    Some(&self.description_input),
+                    self.finished_status,
+                    current_user.user_id,
+                );
+            } else {
+                todo!()
+            }
+        } else {
+            todo!()
         }
     }
 }

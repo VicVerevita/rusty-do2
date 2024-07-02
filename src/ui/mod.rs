@@ -1,9 +1,10 @@
 use app::{App, CurrentScreen, CurrentlyEditing, CurrentlyLoggingIn, CurrentlyRegistering};
 use ratatui::{
     backend::Backend,
-    crossterm::event::{self, Event, KeyCode},
+    crossterm::event::{self, Event, KeyCode, KeyEventKind},
     Terminal,
 };
+use std::io;
 
 pub mod app;
 
@@ -40,6 +41,9 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Res
                         todo!();
                         app.current_screen = CurrentScreen::Main;
                     }
+                    KeyCode::Tab => {
+                        app.toggle_registering();
+                    }
                     _ => {}
                 },
                 CurrentScreen::LoggingIn => match key.code {
@@ -56,6 +60,9 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Res
                         todo!();
                         app.current_screen = CurrentScreen::Main;
                     }
+                    KeyCode::Tab => {
+                        app.toggle_logging_in();
+                    }
                     _ => {}
                 },
                 CurrentScreen::Main => match key.code {
@@ -65,8 +72,47 @@ pub fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> io::Res
                     }
                     _ => {}
                 },
-                CurrentScreen::Editing => todo!(),
+                CurrentScreen::Editing if key.kind == KeyEventKind::Press => match key.code {
+                    KeyCode::Enter => {
+                        if let Some(editing) = &app.currently_editing {
+                            match editing {
+                                CurrentlyEditing::Title => {
+                                    app.currently_editing = Some(CurrentlyEditing::Description);
+                                }
+                                CurrentlyEditing::Description => {
+                                    app.currently_editing = Some(CurrentlyEditing::Status);
+                                }
+                                CurrentlyEditing::Status => {
+                                    app.save_task();
+                                    app.current_screen = CurrentScreen::Main;
+                                }
+                            }
+                        }
+                    }
+                    KeyCode::Backspace => {
+                        if let Some(editing) = &app.currently_editing {
+                            match editing {
+                                CurrentlyEditing::Title => {
+                                    app.title_input.pop();
+                                }
+                                CurrentlyEditing::Description => {
+                                    app.description_input.pop();
+                                }
+                                _ => {}
+                            }
+                        }
+                    }
+                    KeyCode::Esc => {
+                        app.current_screen = CurrentScreen::Main;
+                        app.currently_editing = None;
+                    }
+                    KeyCode::Tab => {
+                        app.toggle_editing();
+                    }
+                    _ => {}
+                },
                 CurrentScreen::Exiting => todo!(),
+                _ => {}
             }
         }
     }
